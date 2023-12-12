@@ -13,13 +13,19 @@
         }
 
         .gantt-container {
+            position: relative;
             width: 100%;
             overflow-x: auto;
         }
 
         .gantt-header, .gantt-body {
-            display: flex;
-            min-width: 600px; /* Ensures some level of responsiveness */
+            white-space: nowrap;
+        }
+
+        .timeline-date {
+            display: inline-block;
+            min-width: calc(100% / 30); /* Assuming a 30-day timeline for simplicity */
+            text-align: center;
         }
 
         .gantt-task {
@@ -29,10 +35,9 @@
             background-color: #4CAF50;
             color: white;
             border-radius: 5px;
-            cursor: pointer; /* Indicates interactivity */
+            cursor: pointer;
+            text-align: center;
         }
-
-        /* Additional responsive and interactive styling */
     </style>
 </head>
 <body>
@@ -46,21 +51,19 @@
     </div>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
+            const ganttHeader = document.querySelector('.gantt-header');
             const ganttBody = document.querySelector('.gantt-body');
             let tasks = loadTasks() || [];
 
-            // Load tasks from local storage
             function loadTasks() {
                 const savedTasks = localStorage.getItem('tasks');
-                return savedTasks ? JSON.parse(savedTasks) : null;
+                return savedTasks ? JSON.parse(savedTasks) : [];
             }
 
-            // Save tasks to local storage
             function saveTasks() {
                 localStorage.setItem('tasks', JSON.stringify(tasks));
             }
 
-            // Add a new task
             function addTask(name, startDate, endDate) {
                 const task = { name, startDate, endDate };
                 tasks.push(task);
@@ -68,14 +71,12 @@
                 displayTasks();
             }
 
-            // Remove a task
             function removeTask(taskName) {
                 tasks = tasks.filter(task => task.name !== taskName);
                 saveTasks();
                 displayTasks();
             }
 
-            // Display tasks
             function displayTasks() {
                 ganttBody.innerHTML = '';
                 tasks.forEach(task => {
@@ -83,33 +84,41 @@
                     taskDiv.classList.add('gantt-task');
                     taskDiv.textContent = task.name;
 
-                    // Position and size task based on dates
                     const position = calculatePosition(task.startDate, task.endDate);
-                    taskDiv.style.left = position.startPos + 'px';
-                    taskDiv.style.width = position.width + 'px';
+                    taskDiv.style.left = position.startPos + '%';
+                    taskDiv.style.width = position.width + '%';
 
-                    // Add click event to remove the task
                     taskDiv.addEventListener('click', () => removeTask(task.name));
-
                     ganttBody.appendChild(taskDiv);
                 });
             }
 
-            // Calculate task position and width
             function calculatePosition(start, end) {
-                // Placeholder for date calculations and positioning logic
-                return { startPos: 50, width: 100 }; // Example values
+                const startDate = new Date(start);
+                const endDate = new Date(end);
+                const startPos = (startDate - timelineStart) / oneDayWidth;
+                const width = (endDate - startDate) / oneDayWidth;
+                return { startPos, width };
             }
 
-            // Example tasks
-            addTask('Task 1', '2023-01-01', '2023-01-07');
-            addTask('Task 2', '2023-01-05', '2023-01-10');
+            const timelineStart = new Date().setHours(0, 0, 0, 0);
+            const timelineEnd = new Date(timelineStart).setDate(new Date(timelineStart).getDate() + 30);
+            const oneDayWidth = 100 / (timelineEnd - timelineStart) * (24 * 60 * 60 * 1000); // Width of one day in percentage
 
-            // Display tasks on initial load
+            function displayTimeline() {
+                ganttHeader.innerHTML = '';
+                for (let date = new Date(timelineStart); date <= timelineEnd; date.setDate(date.getDate() + 1)) {
+                    const dateDiv = document.createElement('div');
+                    dateDiv.classList.add('timeline-date');
+                    dateDiv.textContent = date.toISOString().substring(0, 10);
+                    ganttHeader.appendChild(dateDiv);
+                }
+            }
+
+            displayTimeline();
             displayTasks();
 
-            // Expose addTask function to the global scope for easy access
-            window.addTask = addTask;
+            window.addTask = addTask; // Expose addTask to the global scope
         });
     </script>
 </body>
