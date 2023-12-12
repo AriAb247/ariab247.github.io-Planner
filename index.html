@@ -68,6 +68,13 @@
                 displayTasks();
             }
 
+            // Remove a task
+            function removeTask(taskName) {
+                tasks = tasks.filter(task => task.name !== taskName);
+                saveTasks();
+                displayTasks();
+            }
+
             // Display tasks
             function displayTasks() {
                 ganttBody.innerHTML = '';
@@ -81,8 +88,8 @@
                     taskDiv.style.left = position.startPos + 'px';
                     taskDiv.style.width = position.width + 'px';
 
-                    // Add interactive features (e.g., drag and drop)
-                    makeTaskInteractive(taskDiv);
+                    // Add click event to remove the task
+                    taskDiv.addEventListener('click', () => removeTask(task.name));
 
                     ganttBody.appendChild(taskDiv);
                 });
@@ -94,17 +101,15 @@
                 return { startPos: 50, width: 100 }; // Example values
             }
 
-            // Make tasks interactive
-            function makeTaskInteractive(taskDiv) {
-                // Placeholder for drag and drop logic
-            }
-
             // Example tasks
             addTask('Task 1', '2023-01-01', '2023-01-07');
             addTask('Task 2', '2023-01-05', '2023-01-10');
 
             // Display tasks on initial load
             displayTasks();
+
+            // Expose addTask function to the global scope for easy access
+            window.addTask = addTask;
         });
     </script>
 </body>
