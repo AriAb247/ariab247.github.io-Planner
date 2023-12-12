@@ -3,36 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gantt Chart</title>
+    <title>Enhanced Gantt Chart</title>
     <style>
         body {
             font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         .gantt-container {
-            width: 80%;
-            margin: 0 auto;
+            width: 100%;
+            overflow-x: auto;
         }
 
         .gantt-header, .gantt-body {
             display: flex;
+            min-width: 600px; /* Ensures some level of responsiveness */
         }
 
         .gantt-task {
+            position: absolute;
             margin: 5px;
             padding: 10px;
             background-color: #4CAF50;
             color: white;
             border-radius: 5px;
+            cursor: pointer; /* Indicates interactivity */
         }
 
-        /* More styling can be added as needed */
+        /* Additional responsive and interactive styling */
     </style>
 </head>
 <body>
     <div class="gantt-container">
         <div class="gantt-header">
-            <!-- Header for dates or weeks will be dynamically generated -->
+            <!-- Header for dates will be dynamically generated -->
         </div>
         <div class="gantt-body">
             <!-- Tasks will be displayed here -->
@@ -40,36 +46,66 @@
     </div>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            // Initial setup and variables
             const ganttBody = document.querySelector('.gantt-body');
-            let tasks = [];
+            let tasks = loadTasks() || [];
 
-            // Function to add a new task
+            // Load tasks from local storage
+            function loadTasks() {
+                const savedTasks = localStorage.getItem('tasks');
+                return savedTasks ? JSON.parse(savedTasks) : null;
+            }
+
+            // Save tasks to local storage
+            function saveTasks() {
+                localStorage.setItem('tasks', JSON.stringify(tasks));
+            }
+
+            // Add a new task
             function addTask(name, startDate, endDate) {
                 const task = { name, startDate, endDate };
                 tasks.push(task);
+                saveTasks();
                 displayTasks();
             }
 
-            // Function to display tasks in the Gantt chart
+            // Display tasks
             function displayTasks() {
                 ganttBody.innerHTML = '';
                 tasks.forEach(task => {
                     const taskDiv = document.createElement('div');
                     taskDiv.classList.add('gantt-task');
                     taskDiv.textContent = task.name;
-                    // Additional logic can be added to position and size tasks based on dates
+
+                    // Position and size task based on dates
+                    const position = calculatePosition(task.startDate, task.endDate);
+                    taskDiv.style.left = position.startPos + 'px';
+                    taskDiv.style.width = position.width + 'px';
+
+                    // Add interactive features (e.g., drag and drop)
+                    makeTaskInteractive(taskDiv);
+
                     ganttBody.appendChild(taskDiv);
                 });
             }
 
-            // Example usage
+            // Calculate task position and width
+            function calculatePosition(start, end) {
+                // Placeholder for date calculations and positioning logic
+                return { startPos: 50, width: 100 }; // Example values
+            }
+
+            // Make tasks interactive
+            function makeTaskInteractive(taskDiv) {
+                // Placeholder for drag and drop logic
+            }
+
+            // Example tasks
             addTask('Task 1', '2023-01-01', '2023-01-07');
             addTask('Task 2', '2023-01-05', '2023-01-10');
 
-            // Further functions can be added for task modification and deadline handling
+            // Display tasks on initial load
+            displayTasks();
         });
     </script>
 </body>
 </html>
-
